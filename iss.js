@@ -31,8 +31,24 @@ let fetchMyIp = function(callback) {
 
 };
 
-let fetchCoordsByIP = function (ip, callback) {
-
-}
+let fetchCoordsByIP = function(ip, callback) {
+  request.get(`https://freegeoip.app/json/${ip}`, (error, response, body) => {
+    
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    
+    if (response.statusCode !== 200) {
+      const msg = `Status code ${response.statusCode} when fetching Coords. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+    
+    
+    const { longitude, latitude } = JSON.parse(body);
+    console.log({ longitude, latitude });
+  });
+};
 
 module.exports = { fetchMyIp, fetchCoordsByIP };
