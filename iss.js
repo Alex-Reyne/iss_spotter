@@ -40,15 +40,32 @@ let fetchCoordsByIP = function(ip, callback) {
     }
     
     if (response.statusCode !== 200) {
-      const msg = `Status code ${response.statusCode} when fetching Coords. Response: ${body}`;
-      callback(Error(msg), null);
+      callback(Error(`Status code ${response.statusCode} when fetching Coords for IP: ${body}`), null);
       return;
     }
     
     
     const { longitude, latitude } = JSON.parse(body);
-    console.log({ longitude, latitude });
+    callback(null, { longitude, latitude });
   });
 };
 
-module.exports = { fetchMyIp, fetchCoordsByIP };
+const fetchISSFlyoverTimes = function(coordinates, callback) {
+  request.get(`https://iss-pass.herokuapp.com/json/?lat=${coordinates.latitude}&lon=${coordinates.longitude}`, (error, response, body) => {
+    
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    
+    if (response.statusCode !== 200) {
+      callback(Error(`Status code ${response.statusCode} when fetching Flyover times from coords: ${body}`), null);
+      return;
+    }
+
+    const flyOverTimes = JSON.parse(body).response;
+    callback(null, flyOverTimes);
+  });
+};
+
+module.exports = { fetchMyIp, fetchCoordsByIP, fetchISSFlyoverTimes };
